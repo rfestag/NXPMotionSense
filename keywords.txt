@@ -1,0 +1,4 @@
+NXPMotionSense	KEYWORD1
+readRawAccelerometer	KEYWORD2
+readRawGyroscope	KEYWORD2
+readRawMagnetometer	KEYWORD2
