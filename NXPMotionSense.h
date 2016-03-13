@@ -13,6 +13,7 @@ public:
 	void readRawAccelerometer(int16_t data[3]) { memcpy(data, accel_mag_raw, 6); }
 	void readRawGyroscope(int16_t data[3])     { memcpy(data, gyro_raw, 6); }
 	void readRawMagnetometer(int16_t data[3])  { memcpy(data, accel_mag_raw+3, 6); }
+	bool writeCalibration(const void *data);
 private:
 	void update();
 	bool FXOS8700_begin();

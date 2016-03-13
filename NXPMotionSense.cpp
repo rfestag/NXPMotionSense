@@ -1,5 +1,8 @@
 #include "NXPMotionSense.h"
 #include "utility/NXPSensorRegisters.h"
+#include <util/crc16.h>
+
+#define NXP_MAGNETIC_CAL_EEADDR  76
 
 bool NXPMotionSense::begin()
 {
@@ -9,7 +12,7 @@ bool NXPMotionSense::begin()
 	memset(accel_mag_raw, 0, sizeof(accel_mag_raw));
 	memset(gyro_raw, 0, sizeof(gyro_raw));
 
-	Serial.println("init hardware");
+	//Serial.println("init hardware");
 	while (!FXOS8700_begin()) {
 		Serial.println("config error FXOS8700");
 		delay(1000);
@@ -22,7 +25,7 @@ bool NXPMotionSense::begin()
 		Serial.println("config error MPL3115");
 		delay(1000);
 	}
-	Serial.println("init done");
+	//Serial.println("init done");
 
 	return true;
 
@@ -96,7 +99,7 @@ bool NXPMotionSense::FXOS8700_begin()
 	const uint8_t i2c_addr=FXOS8700_I2C_ADDR0;
 	uint8_t b;
 
-	Serial.println("FXOS8700_begin");
+	//Serial.println("FXOS8700_begin");
 	// detect if chip is present
 	if (!read_regs(i2c_addr, FXOS8700_WHO_AM_I, &b, 1)) return false;
 	//Serial.printf("FXOS8700 ID = %02X\n", b);
@@ -110,7 +113,7 @@ bool NXPMotionSense::FXOS8700_begin()
 	if (!write_reg(i2c_addr, FXOS8700_XYZ_DATA_CFG, 0x01)) return false; // 4G range
 	if (!write_reg(i2c_addr, FXOS8700_CTRL_REG2, 0x02)) return false; // hires
 	if (!write_reg(i2c_addr, FXOS8700_CTRL_REG1, 0x15)) return false; // 100Hz A+M
-	Serial.println("FXOS8700 Configured");
+	//Serial.println("FXOS8700 Configured");
 	return true;
 }
 
@@ -160,7 +163,7 @@ bool NXPMotionSense::FXAS21002_begin()
 	if (!write_reg(i2c_addr, FXAS21002_CTRL_REG0, 0x00)) return false;
 	if (!write_reg(i2c_addr, FXAS21002_CTRL_REG1, 0x0E)) return false;
 
-	Serial.println("FXAS21002 Configured");
+	//Serial.println("FXAS21002 Configured");
 	return true;
 }
 
@@ -210,7 +213,7 @@ bool NXPMotionSense::MPL3115_begin() // pressure
 	// enable events
 	if (!write_reg(i2c_addr, MPL3115_PT_DATA_CFG, 0x07)) return false;
 
-	Serial.println("MPL3115 Configured");
+	//Serial.println("MPL3115 Configured");
 	return true;
 }
 
@@ -243,6 +246,27 @@ bool NXPMotionSense::MPL3115_read(int32_t *altitude, int16_t *temperature)
 	//Serial.printf("%02X %d %d: ", buf[0], usec, usec_history);
 	//Serial.printf("%6d,%6d", a, *temperature);
 	//Serial.println();
+	return true;
+}
+
+bool NXPMotionSense::writeCalibration(const void *data)
+{
+	const uint8_t *p = (const uint8_t *)data;
+	uint16_t crc;
+	uint8_t i;
+
+	if (p[0] != 117 || p[1] != 84) return false;
+	crc = 0xFFFF;
+	for (i=0; i < 52; i++) {
+		crc = _crc16_update(crc, p[i]);
+	}
+	if (crc != 0) return false;
+	for (i=0; i < 52; i++) {
+		EEPROM.write(NXP_MAGNETIC_CAL_EEADDR + i, p[i]);
+	}
+	for (i=0; i < 52; i++) {
+		if (EEPROM.read(NXP_MAGNETIC_CAL_EEADDR + i) != p[i]) return false;
+	}
 	return true;
 }
 
