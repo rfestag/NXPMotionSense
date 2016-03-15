@@ -8,6 +8,8 @@
 
 #include <NXPMotionSense.h>
 #include <MadgwickAHRS.h>
+#include <Wire.h>
+#include <EEPROM.h>
 
 NXPMotionSense imu;
 Madgwick filter;
