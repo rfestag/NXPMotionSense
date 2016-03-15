@@ -6,6 +6,10 @@
 
 bool NXPMotionSense::begin()
 {
+	unsigned char buf[52];
+	uint8_t i;
+	uint16_t crc;
+
 	Wire.begin();
 	Wire.setClock(400000);
 
@@ -27,19 +31,22 @@ bool NXPMotionSense::begin()
 	}
 	//Serial.println("init done");
 
+	for (i=0; i < 52; i++) {
+		buf[i] = EEPROM.read(NXP_MAGNETIC_CAL_EEADDR + i);
+	}
+	crc = 0xFFFF;
+	for (i=0; i < 52; i++) {
+		crc = _crc16_update(crc, buf[i]);
+	}
+	if (crc == 0 && buf[0] == 117 && buf[1] == 84) {
+		memcpy(magcalh, buf+2, sizeof(magcalh));
+		memcpy(magcals, buf+14, sizeof(magcals));
+	} else {
+		memset(magcalh, 0, sizeof(magcalh));
+		memset(magcals, 0, sizeof(magcals));
+	}
 	return true;
 
-
-}
-
-bool NXPMotionSense::available()
-{
-	update();
-	if (newdata) {
-		newdata = 0;
-		return true;
-	}
-	return false;
 }
 
 

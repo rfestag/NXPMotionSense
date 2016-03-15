@@ -12,32 +12,34 @@ void setup() {
 }
 
 void loop() {
-  int16_t accel[3], gyro[3], mag[3];
+  int ax, ay, az;
+  int gx, gy, gz;
+  int mx, my, mz;
 
+  // get and print uncalibrated data
   if (imu.available()) {
-    // get and print data
-    imu.readRawAccelerometer(accel);
-    imu.readRawGyroscope(gyro);
-    imu.readRawMagnetometer(mag);
-    Serial.print(accel[0]);
+    imu.readMotionSensor(ax, ay, az, gx, gy, gz, mx, my, mz);
+    Serial.print(ax);
     Serial.print(',');
-    Serial.print(accel[1]);
+    Serial.print(ay);
     Serial.print(',');
-    Serial.print(accel[2]);
+    Serial.print(az);
     Serial.print(',');
-    Serial.print(gyro[0]);
+    Serial.print(gx);
     Serial.print(',');
-    Serial.print(gyro[1]);
+    Serial.print(gy);
     Serial.print(',');
-    Serial.print(gyro[2]);
+    Serial.print(gz);
     Serial.print(',');
-    Serial.print(mag[0]);
+    Serial.print(mx);
     Serial.print(',');
-    Serial.print(mag[1]);
+    Serial.print(my);
     Serial.print(',');
-    Serial.print(mag[2]);
+    Serial.print(mz);
     Serial.println();
   }
+
+  // check for incoming calibration
   receiveCalibration();
 
 }
