@@ -1,3 +1,9 @@
+// Basic Inertial Monitoring Unit (IMU) using Madgwick filter.
+//
+// To view this data, use the Arduino Serial Monitor to watch the
+// scrolling angles (in radians: 1.57 is 90 degrees).
+//
+// For graphical display, this Processing sketch works:
 // https://www.arduino.cc/en/Tutorial/Genuino101CurieIMUOrientationVisualiser
 
 #include <NXPMotionSense.h>
@@ -24,10 +30,10 @@ void loop() {
     // Scale the gyroscope to the range Madgwick expects
     float gyroScale = 0.097656f; // TODO: is this really correct?
     gx = gx * gyroScale;
-    gy = gx * gyroScale;
+    gy = gy * gyroScale;
     gz = gz * gyroScale;
 
-    // update the Madgwick filter
+    // Update the Madgwick filter
     filter.updateIMU(gx, gy, gz, ax, ay, az);
     //filter.update(gx, gy, gz, ax, ay, az, mx, my, mz);
   }
@@ -41,11 +47,12 @@ void loop() {
     Serial.print(",");
     Serial.print(pitch);
     Serial.print(",");
-    Serial.println(roll); // TODO: roll not working... why?
+    Serial.println(roll);
   }
 }
 
-// Decide when to print more info.
+
+// Decide when to print
 bool readyToPrint() {
   static unsigned long nowMillis;
   static unsigned long thenMillis;
