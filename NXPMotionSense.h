@@ -69,6 +69,11 @@ public:
 	}
 
 	bool writeCalibration(const void *data);
+	void getCalibration(float *hardiron, float *softiron=NULL, float *fieldstrength=NULL) {
+		if (hardiron != NULL) memcpy(hardiron, magcalh, 12);
+		if (softiron != NULL) memcpy(softiron, magcals, 36);
+		if (fieldstrength != NULL) *fieldstrength = 50.0f;
+	}
 private:
 	void update();
 	bool FXOS8700_begin();
