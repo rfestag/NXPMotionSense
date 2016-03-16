@@ -3,6 +3,11 @@
 // To view this data, use the Arduino Serial Monitor to watch the
 // scrolling angles (in radians: 1.57 is 90 degrees).
 //
+// Filtering is done by the MadgwickAHRS or MahonyAHRS libraries
+// To use MahonyAHRS, simply replace "Madgwick" with "Mahony".
+// https://github.com/arduino-libraries/MadgwickAHRS
+// https://github.com/PaulStoffregen/MahonyAHRS
+//
 // For graphical display, this Processing sketch works:
 // https://www.arduino.cc/en/Tutorial/Genuino101CurieIMUOrientationVisualiser
 
