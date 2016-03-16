@@ -1,4 +1,6 @@
 NXPMotionSense	KEYWORD1
-readRawAccelerometer	KEYWORD2
-readRawGyroscope	KEYWORD2
-readRawMagnetometer	KEYWORD2
+NXPSensorFusion	KEYWORD1
+readMotionSensor	KEYWORD2
+getPitch	KEYWORD2
+getRoll	KEYWORD2
+getYaw	KEYWORD2
