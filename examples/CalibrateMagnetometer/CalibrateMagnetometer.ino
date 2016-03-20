@@ -5,10 +5,16 @@
 
 NXPMotionSense imu;
 
+const int ledPin = 13;
+int ledState = LOW;
+int ledFastblinks = 0;
+elapsedMillis ledMillis = 0;
+
 void setup() {
   Serial.begin(115200);
   while (!Serial) ; // wait for serial port open
   imu.begin();
+  pinMode(ledPin, OUTPUT);
 }
 
 void loop() {
@@ -42,6 +48,21 @@ void loop() {
   // check for incoming calibration
   receiveCalibration();
 
+  // blink LED, slow normally, fast when calibration written
+  if (ledMillis >= 1000) {
+    if (ledFastblinks > 0) {
+      ledFastblinks = ledFastblinks - 1;
+      ledMillis -= 125;
+    } else {
+      ledMillis -= 1000;
+    }
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+    digitalWrite(ledPin, ledState);
+  }
 }
 
 byte caldata[52]; // buffer to receive magnetic calibration data
@@ -77,6 +98,7 @@ void receiveCalibration() {
       // data looks good, use it
       imu.writeCalibration(caldata);
       calcount = 0;
+      ledFastblinks = 16; // Toggle LED faster the next 16 times
       return;
     }
     // look for the 117,84 in the data, before discarding
