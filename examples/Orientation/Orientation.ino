@@ -9,16 +9,18 @@
 // https://www.arduino.cc/en/Tutorial/Genuino101CurieIMUOrientationVisualiser
 
 #include <NXPMotionSense.h>
+#include <MahonyAHRS.h>
 #include <Wire.h>
 #include <EEPROM.h>
 
 NXPMotionSense imu;
+//Mahony filter;
 NXPSensorFusion filter;
 
 void setup() {
   Serial.begin(9600);
   imu.begin();
-  filter.begin();
+  filter.begin(100);
 }
 
 void loop() {
