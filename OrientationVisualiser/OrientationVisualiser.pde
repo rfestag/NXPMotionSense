@@ -59,15 +59,18 @@ void draw()
 void serialEvent()
 {
   int newLine = 13; // new line character in ASCII
-  String message = myPort.readStringUntil(newLine); // read from port until new line
-  if (message != null) {
-    String[] list = split(trim(message), " ");
-    if (list.length >= 4 && list[0].equals("Orientation:")) {
-      yaw = float(list[1]); // convert to float yaw
-      pitch = float(list[2]); // convert to float pitch
-      roll = float(list[3]); // convert to float roll
+  String message;
+  do {
+    message = myPort.readStringUntil(newLine); // read from port until new line
+    if (message != null) {
+      String[] list = split(trim(message), " ");
+      if (list.length >= 4 && list[0].equals("Orientation:")) {
+        yaw = float(list[1]); // convert to float yaw
+        pitch = float(list[2]); // convert to float pitch
+        roll = float(list[3]); // convert to float roll
+      }
     }
-  }
+  } while (message != null);
 }
 
 void drawArduino()
