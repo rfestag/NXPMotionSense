@@ -27,13 +27,6 @@ void loop() {
     // Read the motion sensors
     imu.readMotionSensor(ax, ay, az, gx, gy, gz, mx, my, mz);
 
-    // Scale the gyroscope.  NXPMotionSense gives degrees/sec
-    // but Mahony expects radians/sec.
-    float gyroScale = 0.0174533;
-    gx = gx * gyroScale;
-    gy = gy * gyroScale;
-    gz = gz * gyroScale;
-
     // Update the Mahony filter
     filter.update(gx, gy, gz, ax, ay, az, mx, my, mz);
 
@@ -41,9 +34,6 @@ void loop() {
     roll = filter.getRoll();
     pitch = filter.getPitch();
     heading = filter.getYaw();
-    roll = roll * 57.2958;
-    pitch = pitch * 57.2958;  // Mahony gives radians, convert to degrees
-    heading = heading * 57.2958;
     Serial.print("Orientation: ");
     Serial.print(heading);
     Serial.print(" ");
