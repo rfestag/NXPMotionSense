@@ -1,15 +1,7 @@
 // Basic Inertial Monitoring Unit (IMU) using Madgwick filter.
 //
 // To view this data, use the Arduino Serial Monitor to watch the
-// scrolling angles (in radians: 1.57 is 90 degrees).
-//
-// Filtering is done by the MadgwickAHRS or MahonyAHRS libraries
-// To use MahonyAHRS, simply replace "Madgwick" with "Mahony".
-// https://github.com/arduino-libraries/MadgwickAHRS
-// https://github.com/PaulStoffregen/MahonyAHRS
-//
-// For graphical display, this Processing sketch works:
-// https://www.arduino.cc/en/Tutorial/Genuino101CurieIMUOrientationVisualiser
+// scrolling angles, or run the OrientationVisualiser example in Processing.
 
 #include <NXPMotionSense.h>
 #include <MadgwickAHRS.h>
@@ -22,6 +14,7 @@ Madgwick filter;
 void setup() {
   Serial.begin(9600);
   imu.begin();
+  filter.begin(100);
 }
 
 void loop() {
@@ -34,51 +27,20 @@ void loop() {
     // Read the motion sensors
     imu.readMotionSensor(ax, ay, az, gx, gy, gz, mx, my, mz);
 
-    // Scale the gyroscope to the range Madgwick expects
-    float gyroScale = 0.097656f; // TODO: is this really correct?
-    gx = gx * gyroScale;
-    gy = gy * gyroScale;
-    gz = gz * gyroScale;
-
     // Update the Madgwick filter
     filter.updateIMU(gx, gy, gz, ax, ay, az);
     //filter.update(gx, gy, gz, ax, ay, az, mx, my, mz);
-  }
 
-  if (readyToPrint()) {
     // print the heading, pitch and roll
     roll = filter.getRoll();
     pitch = filter.getPitch();
     heading = filter.getYaw();
+    Serial.print("Orientation: ");
     Serial.print(heading);
-    Serial.print(",");
+    Serial.print(" ");
     Serial.print(pitch);
-    Serial.print(",");
+    Serial.print(" ");
     Serial.println(roll);
   }
 }
 
-
-// Decide when to print
-bool readyToPrint() {
-  static unsigned long nowMillis;
-  static unsigned long thenMillis;
-
-  // If the Processing visualization sketch is sending "s"
-  // then send new data each time it wants to redraw
-  while (Serial.available()) {
-    int val = Serial.read();
-    if (val == 's') {
-      thenMillis = millis();
-      return true;
-    }
-  }
-  // Otherwise, print 8 times per second, for viewing as
-  // scrolling numbers in the Arduino Serial Monitor
-  nowMillis = millis();
-  if (nowMillis - thenMillis > 125) {
-    thenMillis = nowMillis;
-    return true;
-  }
-  return false;
-}
