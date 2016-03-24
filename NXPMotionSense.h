@@ -97,15 +97,16 @@ public:
 	void begin(float sampleRate=100.0f);
 	void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
 	// TODO: these aren't the same ranges as Madgwick & Mahony... or are they??
-	float getRoll() { return PhiPl * 0.017453f; }
-	float getPitch() { return ThePl * 0.017453f; }
-	float getYaw() { return PsiPl * 0.017453f; }
+	float getRoll() { return PhiPl; }
+	float getPitch() { return ThePl; }
+	float getYaw() { return PsiPl; }
 	typedef struct {
 		float q0; // w
 		float q1; // x
 		float q2; // y
 		float q3; // z
 	} Quaternion_t;
+	// These are Madgwick & Mahony - extrinsic rotation reference (wrong!)
 	//float getPitch() {return atan2f(2.0f * qPl.q2 * qPl.q3 - 2.0f * qPl.q0 * qPl.q1, 2.0f * qPl.q0 * qPl.q0 + 2.0f * qPl.q3 * qPl.q3 - 1.0f);};
 	//float getRoll() {return -1.0f * asinf(2.0f * qPl.q1 * qPl.q3 + 2.0f * qPl.q0 * qPl.q2);};
 	//float getYaw() {return atan2f(2.0f * qPl.q1 * qPl.q2 - 2.0f * qPl.q0 * qPl.q3, 2.0f * qPl.q0 * qPl.q0 + 2.0f * qPl.q1 * qPl.q1 - 1.0f);};
