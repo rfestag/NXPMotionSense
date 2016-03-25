@@ -5,7 +5,7 @@
 NXPMotionSense imu;
 
 void setup() {
-  float hardIron[3];
+  float offsets[3];
   float softIron[9];
   float fieldStrength;
   int i, j;
@@ -13,30 +13,45 @@ void setup() {
   Serial.begin(9600);
   while (!Serial) ; // wait for serial port open
   imu.begin();
-  imu.getCalibration(hardIron, softIron, &fieldStrength);
-  Serial.println("Magnetic Calibration");
-  Serial.println(); 
-  Serial.println("Hard Iron Offset"); 
+  Serial.println("Calibration Data");
+  Serial.println();
+  imu.getCalibration(offsets, softIron, &fieldStrength);
+  Serial.println("Magnetic (Hard Iron) Offsets");
   for (i=0; i<3; i++) {
-    Serial.print("  ");
-    if (hardIron[i] >= 0.0f) Serial.print(' ');
-    Serial.println(hardIron[i]);
+    printnum(offsets[i + 6], 2);
+    Serial.println(" uT");
   }
-  Serial.println(); 
-  Serial.println("Soft Iron Mapping"); 
+  Serial.println();
+  Serial.println("Magnetic Soft Iron Mapping");
   for (i=0; i<3; i++) {
     for (j=0; j<3; j++) {
-      Serial.print("  ");
-      if (softIron[i*3+j] >= 0.0f) Serial.print(' ');
-      Serial.print(softIron[i*3+j], 4);
+      printnum(softIron[i*3+j], 4);
     }
     Serial.println();
   }
-  Serial.println(); 
-  Serial.println("Expected Magnetic Field Strength"); 
-  Serial.print("  ");
-  Serial.print(fieldStrength);
+  Serial.println();
+  Serial.println("Expected Magnetic Field Strength");
+  printnum(fieldStrength, 2);
   Serial.println(" uT");
+  Serial.println();
+  Serial.println("Accelerometer Offsets");
+  for (i=0; i<3; i++) {
+    printnum(offsets[i], 3);
+    Serial.println(" g");
+  }
+  Serial.println();
+  Serial.println("Gyroscope Offsets");
+  for (i=0; i<3; i++) {
+    printnum(offsets[i + 3], 3);
+    Serial.println(" degrees/sec");
+  }
+  Serial.println();
+}
+
+void printnum(float num, int digits) {
+      Serial.print("  ");
+      if (num >= 0.0f) Serial.print(' ');
+      Serial.print(num, digits);
 }
 
 void loop() {

@@ -2,11 +2,12 @@
 #include "utility/NXPSensorRegisters.h"
 #include <util/crc16.h>
 
-#define NXP_MAGNETIC_CAL_EEADDR  76
+#define NXP_MOTION_CAL_EEADDR  60
+#define NXP_MOTION_CAL_SIZE    68
 
 bool NXPMotionSense::begin()
 {
-	unsigned char buf[52];
+	unsigned char buf[NXP_MOTION_CAL_SIZE];
 	uint8_t i;
 	uint16_t crc;
 
@@ -31,19 +32,18 @@ bool NXPMotionSense::begin()
 	}
 	//Serial.println("init done");
 
-	for (i=0; i < 52; i++) {
-		buf[i] = EEPROM.read(NXP_MAGNETIC_CAL_EEADDR + i);
+	for (i=0; i < NXP_MOTION_CAL_SIZE; i++) {
+		buf[i] = EEPROM.read(NXP_MOTION_CAL_EEADDR + i);
 	}
 	crc = 0xFFFF;
-	for (i=0; i < 52; i++) {
+	for (i=0; i < NXP_MOTION_CAL_SIZE; i++) {
 		crc = _crc16_update(crc, buf[i]);
 	}
 	if (crc == 0 && buf[0] == 117 && buf[1] == 84) {
-		memcpy(magcalh, buf+2, sizeof(magcalh));
-		memcpy(magcals, buf+14, sizeof(magcals));
+		memcpy(cal, buf+2, sizeof(cal));
 	} else {
-		memset(magcalh, 0, sizeof(magcalh));
-		memset(magcals, 0, sizeof(magcals));
+		memset(cal, 0, sizeof(cal));
+		cal[9] = 50.0f;
 	}
 	return true;
 
@@ -264,16 +264,17 @@ bool NXPMotionSense::writeCalibration(const void *data)
 
 	if (p[0] != 117 || p[1] != 84) return false;
 	crc = 0xFFFF;
-	for (i=0; i < 52; i++) {
+	for (i=0; i < NXP_MOTION_CAL_SIZE; i++) {
 		crc = _crc16_update(crc, p[i]);
 	}
 	if (crc != 0) return false;
-	for (i=0; i < 52; i++) {
-		EEPROM.write(NXP_MAGNETIC_CAL_EEADDR + i, p[i]);
+	for (i=0; i < NXP_MOTION_CAL_SIZE; i++) {
+		EEPROM.write(NXP_MOTION_CAL_EEADDR + i, p[i]);
 	}
-	for (i=0; i < 52; i++) {
-		if (EEPROM.read(NXP_MAGNETIC_CAL_EEADDR + i) != p[i]) return false;
+	for (i=0; i < NXP_MOTION_CAL_SIZE; i++) {
+		if (EEPROM.read(NXP_MOTION_CAL_EEADDR + i) != p[i]) return false;
 	}
+	memcpy(cal, ((const uint8_t *)data)+2, sizeof(cal));
 	return true;
 }
 

@@ -65,7 +65,7 @@ void loop() {
   }
 }
 
-byte caldata[52]; // buffer to receive magnetic calibration data
+byte caldata[68]; // buffer to receive magnetic calibration data
 byte calcount=0;
 
 void receiveCalibration() {
@@ -85,13 +85,13 @@ void receiveCalibration() {
     }
     // store this byte
     caldata[calcount++] = b;
-    if (calcount < 52) {
-      // full calibration message is 52 bytes
+    if (calcount < 68) {
+      // full calibration message is 68 bytes
       return;
     }
     // verify the crc16 check
     crc = 0xFFFF;
-    for (i=0; i < 52; i++) {
+    for (i=0; i < 68; i++) {
       crc = _crc16_update(crc, caldata[i]);
     }
     if (crc == 0) {
@@ -102,16 +102,16 @@ void receiveCalibration() {
       return;
     }
     // look for the 117,84 in the data, before discarding
-    for (i=2; i < 51; i++) {
+    for (i=2; i < 67; i++) {
       if (caldata[i] == 117 && caldata[i+1] == 84) {
         // found possible start within data
-        calcount = 52 - i;
+        calcount = 68 - i;
         memmove(caldata, caldata + i, calcount);
         return;
       }
     }
     // look for 117 in last byte
-    if (caldata[51] == 117) {
+    if (caldata[67] == 117) {
       caldata[0] = 117;
       calcount = 1;
     } else {

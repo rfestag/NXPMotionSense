@@ -54,25 +54,37 @@ public:
 	void readMotionSensor(float& ax, float& ay, float& az, float& gx, float& gy, float& gz, float& mx, float& my, float& mz) {
 		if (!newdata) update();
 		newdata = 0;
-		ax = (float)accel_mag_raw[0] * G_PER_COUNT;
-		ay = (float)accel_mag_raw[1] * G_PER_COUNT;
-		az = (float)accel_mag_raw[2] * G_PER_COUNT;
-		gx = (float)gyro_raw[0] * DEG_PER_SEC_PER_COUNT;
-		gy = (float)gyro_raw[1] * DEG_PER_SEC_PER_COUNT;
-		gz = (float)gyro_raw[2] * DEG_PER_SEC_PER_COUNT;
-		float x = (float)accel_mag_raw[3] * UT_PER_COUNT - magcalh[0];
-		float y = (float)accel_mag_raw[4] * UT_PER_COUNT - magcalh[1];
-		float z = (float)accel_mag_raw[5] * UT_PER_COUNT - magcalh[2];
-		mx = x * magcals[0][0] + y * magcals[0][1] + z * magcals[0][2];
-		my = x * magcals[1][0] + y * magcals[1][1] + z * magcals[1][2];
-		mz = x * magcals[2][0] + y * magcals[2][1] + z * magcals[2][2];
+		ax = (float)accel_mag_raw[0] * G_PER_COUNT - cal[0];
+		ay = (float)accel_mag_raw[1] * G_PER_COUNT - cal[1];
+		az = (float)accel_mag_raw[2] * G_PER_COUNT - cal[2];
+		gx = (float)gyro_raw[0] * DEG_PER_SEC_PER_COUNT - cal[3];
+		gy = (float)gyro_raw[1] * DEG_PER_SEC_PER_COUNT - cal[4];
+		gz = (float)gyro_raw[2] * DEG_PER_SEC_PER_COUNT - cal[5];
+		float x = (float)accel_mag_raw[3] * UT_PER_COUNT - cal[6];
+		float y = (float)accel_mag_raw[4] * UT_PER_COUNT - cal[7];
+		float z = (float)accel_mag_raw[5] * UT_PER_COUNT - cal[8];
+		mx = x * cal[10] + y * cal[13] + z * cal[14];
+		my = x * cal[13] + y * cal[11] + z * cal[15];
+		mz = x * cal[14] + y * cal[15] + z * cal[12];
 	}
 
 	bool writeCalibration(const void *data);
 	void getCalibration(float *hardiron, float *softiron=NULL, float *fieldstrength=NULL) {
-		if (hardiron != NULL) memcpy(hardiron, magcalh, 12);
-		if (softiron != NULL) memcpy(softiron, magcals, 36);
-		if (fieldstrength != NULL) *fieldstrength = 50.0f;
+		if (hardiron != NULL) {
+			memcpy(hardiron, cal+6, 12);
+		}
+		if (softiron != NULL) {
+			*softiron++ = cal[10];
+			*softiron++ = cal[13];
+			*softiron++ = cal[14];
+			*softiron++ = cal[13];
+			*softiron++ = cal[11];
+			*softiron++ = cal[15];
+			*softiron++ = cal[14];
+			*softiron++ = cal[15];
+			*softiron++ = cal[12];
+		}
+		if (fieldstrength != NULL) *fieldstrength = cal[9];
 	}
 private:
 	void update();
@@ -82,9 +94,7 @@ private:
 	bool FXOS8700_read(int16_t *data);
 	bool FXAS21002_read(int16_t *data);
 	bool MPL3115_read(int32_t *altitude, int16_t *temperature);
-
-	float magcalh[3];
-	float magcals[3][3];
+	float cal[16]; // 0-8=offsets, 9=field strength, 10-15=soft iron map
 	int16_t accel_mag_raw[6];
 	int16_t gyro_raw[3];
 	int16_t temperature_raw;
