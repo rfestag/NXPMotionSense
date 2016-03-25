@@ -25,6 +25,7 @@ void loop() {
   // get and print uncalibrated data
   if (imu.available()) {
     imu.readMotionSensor(ax, ay, az, gx, gy, gz, mx, my, mz);
+    Serial.print("Raw:");
     Serial.print(ax);
     Serial.print(',');
     Serial.print(ay);
