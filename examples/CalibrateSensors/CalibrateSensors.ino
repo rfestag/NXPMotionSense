@@ -9,6 +9,7 @@ const int ledPin = 13;
 int ledState = LOW;
 int ledFastblinks = 0;
 elapsedMillis ledMillis = 0;
+int loopcount = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -44,10 +45,35 @@ void loop() {
     Serial.print(',');
     Serial.print(mz);
     Serial.println();
+    loopcount = loopcount + 1;
   }
 
   // check for incoming calibration
   receiveCalibration();
+
+  // occasionally print calibration
+  if (loopcount == 50 || loopcount > 100) {
+    Serial.print("Cal1:");
+    float caloffsets[9], calmag;
+    imu.getCalibration(caloffsets, NULL, &calmag);
+    for (int i=0; i<9; i++) {
+      Serial.print(caloffsets[i], 3);
+      Serial.print(',');
+    }
+    Serial.println(calmag, 3);
+    loopcount = loopcount + 1;
+  }
+  if (loopcount >= 100) {
+    Serial.print("Cal2:");
+    float calsoftiron[9];
+    imu.getCalibration(NULL, calsoftiron, NULL);
+    for (int i=0; i<9; i++) {
+      Serial.print(calsoftiron[i], 4);
+      if (i < 8) Serial.print(',');
+    }
+    Serial.println();
+    loopcount = 0;
+  }
 
   // blink LED, slow normally, fast when calibration written
   if (ledMillis >= 1000) {
@@ -99,6 +125,7 @@ void receiveCalibration() {
       // data looks good, use it
       imu.writeCalibration(caldata);
       calcount = 0;
+      loopcount = 10000;
       ledFastblinks = 16; // Toggle LED faster the next 16 times
       return;
     }

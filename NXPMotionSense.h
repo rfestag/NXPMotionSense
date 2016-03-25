@@ -69,9 +69,9 @@ public:
 	}
 
 	bool writeCalibration(const void *data);
-	void getCalibration(float *hardiron, float *softiron=NULL, float *fieldstrength=NULL) {
-		if (hardiron != NULL) {
-			memcpy(hardiron, cal+6, 12);
+	void getCalibration(float *offsets, float *softiron=NULL, float *fieldstrength=NULL) {
+		if (offsets != NULL) {
+			memcpy(offsets, cal, 36);
 		}
 		if (softiron != NULL) {
 			*softiron++ = cal[10];
