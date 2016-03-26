@@ -5,7 +5,7 @@
 NXPMotionSense imu;
 
 void setup() {
-  float offsets[3];
+  float offsets[9];
   float softIron[9];
   float fieldStrength;
   int i, j;
