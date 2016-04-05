@@ -10,6 +10,7 @@ int ledState = LOW;
 int ledFastblinks = 0;
 elapsedMillis ledMillis = 0;
 int loopcount = 0;
+void receiveCalibration();
 
 void setup() {
   Serial.begin(115200);
