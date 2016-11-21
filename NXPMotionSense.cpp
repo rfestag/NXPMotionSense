@@ -1,6 +1,7 @@
 #include "NXPMotionSense.h"
 #include "utility/NXPSensorRegisters.h"
 #include <util/crc16.h>
+#include <elapsedMillis.h>
 
 #define NXP_MOTION_CAL_EEADDR  60
 #define NXP_MOTION_CAL_SIZE    68
