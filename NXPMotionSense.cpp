@@ -81,7 +81,8 @@ static bool read_regs(uint8_t i2c, uint8_t addr, uint8_t *data, uint8_t num)
 {
 	Wire.beginTransmission(i2c);
 	Wire.write(addr);
-	if (Wire.endTransmission(false) != 0) return false;
+        int resp = Wire.endTransmission(false);
+	if (resp != 0 && resp != 7) return false;
 	Wire.requestFrom(i2c, num);
 	if (Wire.available() != num) return false;
 	while (num > 0) {
